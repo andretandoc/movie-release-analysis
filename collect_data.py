@@ -9,8 +9,13 @@ API_KEY = "71e57d0e92d640e5b6d2a43e8c88f52e"
 
 def load_cache():
     if os.path.exists(CACHE_FILE):
-        with open(CACHE_FILE, 'r') as file:
-            return json.load(file)
+        # Check if the file is empty
+        if os.path.getsize(CACHE_FILE) > 0:
+            with open(CACHE_FILE, 'r') as file:
+                return json.load(file)
+        else:
+            print("Cache file is empty.")
+            return {}
     return {}
 
 def save_cache(cache):
