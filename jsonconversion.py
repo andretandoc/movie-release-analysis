@@ -9,7 +9,8 @@ for k in contents:
     
     lst = contents[k]
     df = pd.DataFrame.from_records(lst)
-    df['date'] = k
-    df = df[['date','title','description']]
-    emptydf = pd.concat([emptydf,df])
+    #df['date'] = k
+    df['category'] = ''
+    df = df[['title','description','category']]
+    emptydf = pd.concat([emptydf,df],ignore_index=True)
 emptydf.to_csv('/Users/paulmandelos/Desktop/COMP370/finalproject/dataframe.tsv',sep='\t')
