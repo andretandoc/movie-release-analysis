@@ -1,6 +1,7 @@
 import requests
 import datetime
 import json
+from pathlib import Path
 import os
 
 CACHE_FILE = 'news_cache.json'
@@ -35,29 +36,32 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
     
     cache = load_cache()
 
-    # Check if data is already in the cache
-    cache_key = f"{news_keywords}_{lookback_days}_{startdaysago}_{preferred_sources}"
-    if cache_key in cache:
-        print("Fetching from cache...")
-        return cache[cache_key]
-
     today = datetime.date.today() - datetime.timedelta(days=startdaysago)
     lookback_date = today - datetime.timedelta(days=lookback_days)
     today_str = today.strftime("%Y-%m-%d")
     lookback_date_str = lookback_date.strftime("%Y-%m-%d")
-    url = f"https://newsapi.org/v2/everything?q={news_keywords}&from={lookback_date_str}&to={today_str}&language=en&apiKey={api_key}"
-    response = requests.get(url)
 
-    if response.status_code != 200:
-        print(f"Failed to fetch news. Status code: {response.status_code}")
-        return []
+    # Check if data is already in the cache
+    cache_key = f"{lookback_date_str}_{today_str}"
 
-    data = response.json()
+    if cache_key in cache:
+        print("Fetching from cache...")
+        data = cache[cache_key]
+    else:
+        url = f"https://newsapi.org/v2/everything?q={news_keywords}&from={lookback_date_str}&to={today_str}&language=en&apiKey={api_key}"
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            print(f"Failed to fetch news. Status code: {response.status_code}")
+            return []
+
+        data = response.json()
+        # Save data to cache
+        new_articles = data.get('articles', [])
+        cache[cache_key] = new_articles
+        save_cache(cache)
+
     articles = data.get('articles', [])
-
-    # Save data to cache
-    cache[cache_key] = articles
-    save_cache(cache)
 
     # Filter articles by preferred sources
     filtered_articles = [article for article in articles if is_from_preferred_source(article, preferred_sources)]
