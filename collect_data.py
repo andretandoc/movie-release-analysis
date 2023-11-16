@@ -11,7 +11,7 @@ def load_cache():
     if os.path.exists(CACHE_FILE):
         # Check if the file is empty
         if os.path.getsize(CACHE_FILE) > 0:
-            with open(CACHE_FILE, 'r') as file:
+            with open(CACHE_FILE, 'r', encoding='utf-8') as file:
                 return json.load(file)
         else:
             print("Cache file is empty.")
@@ -19,8 +19,8 @@ def load_cache():
     return {}
 
 def save_cache(cache):
-    with open(CACHE_FILE, 'w') as file:
-        json.dump(cache, file)
+    with open(CACHE_FILE, 'w', encoding='utf-8') as file:
+        json.dump(cache, file, ensure_ascii=False, indent=4)
 
 def check_timeframe(news_list, lookback_days):
     today = datetime.date.today()
@@ -78,7 +78,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
     return filtered_articles
 
 def main():
-    keywords = "movie"
+    keywords = "movie review"
     preferred_sources = ["Rotten Tomatoes", "Screen Rant", "Metacritic", "Movie Insider", "IMDb", "New York Times", "LA Times", "Boing Boing", "Wired"]
     totlist = []
     x = 1
@@ -96,4 +96,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
