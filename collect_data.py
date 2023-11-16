@@ -53,6 +53,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
     if cache_key in cache:
         print("Fetching from cache...")
         data = cache[cache_key]
+        articles = data
     else:
         url = f"https://newsapi.org/v2/everything?q={news_keywords}&from={lookback_date_str}&to={today_str}&language=en&apiKey={api_key}"
         response = requests.get(url)
@@ -66,8 +67,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
         new_articles = data.get('articles', [])
         cache[cache_key] = new_articles
         save_cache(cache)
-
-    articles = data.get('articles', [])
+        articles = data.get('articles', [])
 
     # Filter articles by preferred sources
     filtered_articles = [article for article in articles if is_from_preferred_source(article, preferred_sources)]
