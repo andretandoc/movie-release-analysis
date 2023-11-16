@@ -77,7 +77,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
 
     return filtered_articles
 
-if __name__ == "__main__":
+def main():
     keywords = "movie"
     preferred_sources = ["Rotten Tomatoes", "Screen Rant", "Metacritic", "Movie Insider", "IMDb", "New York Times", "LA Times", "Boing Boing", "Wired"]
     totlist = []
@@ -91,5 +91,9 @@ if __name__ == "__main__":
 
     for article in totlist:
         print(article['url'])
-        
+            
     print(len(totlist))
+
+if __name__ == "__main__":
+    main()
+    
