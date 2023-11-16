@@ -5,6 +5,7 @@ from pathlib import Path
 import os
 
 CACHE_FILE = 'news_cache.json'
+API_KEY = "71e57d0e92d640e5b6d2a43e8c88f52e"
 
 def load_cache():
     if os.path.exists(CACHE_FILE):
@@ -72,14 +73,13 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
     return filtered_articles
 
 if __name__ == "__main__":
-    api_key = "71e57d0e92d640e5b6d2a43e8c88f52e"
     keywords = "movie"
     preferred_sources = ["Rotten Tomatoes", "Screen Rant", "Metacritic", "Movie Insider", "IMDb", "New York Times", "LA Times", "Boing Boing", "Wired"]
     totlist = []
     x = 1
     y = 0
     while (x, y) < (14, 10000):
-        news_list = fetch_latest_news(api_key, keywords, lookback_days=x, startdaysago=y, preferred_sources=None)
+        news_list = fetch_latest_news(API_KEY, keywords, lookback_days=x, startdaysago=y, preferred_sources=None)
         totlist.extend(news_list)
         x += 2
         y += 2
