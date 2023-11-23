@@ -1,4 +1,4 @@
-import requests
+import requests 
 import datetime
 import json
 from pathlib import Path
@@ -78,7 +78,14 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=10, startdaysago=10,
     return filtered_articles
 
 def main():
-    keywords = "movie review"
+   # keywords = '"November 2023 movie review" OR "2023 movie"'
+    #keywords = '"Mavels movie 2023" OR " Marvels review"'
+    keywords = (
+    '"movie review" OR "film review" OR "2023 movie" OR "best movies 2023" OR '
+    '"upcoming films" OR "box office" OR "Oscar nominations" OR '
+    '"directed by" OR "starring" OR "awards season" OR "film premiere" OR '
+    '"celebrity interviews" OR "blockbuster movies 2023"'
+)
     preferred_sources = ["Rotten Tomatoes", "Screen Rant", "Metacritic", "Movie Insider", "IMDb", "New York Times", "LA Times", "Boing Boing", "Wired"]
     totlist = []
     x = 1
