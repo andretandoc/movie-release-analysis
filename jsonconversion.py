@@ -8,7 +8,7 @@ def get_dataset_path(fname: str) -> Path:
 # Get the path for the JSON file
 json_file_path = get_dataset_path("news_cache.json")
 
-with open(json_file_path, 'r') as j:
+with open(json_file_path, 'r', encoding='utf-8') as j:
     contents = json.load(j)
 
 # Use list comprehension and pd.concat directly
