@@ -5,12 +5,12 @@ from pathlib import Path
 import os
 import re
 import pandas as pd
-global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY
+global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY,API_KEY_LIST
 KEYWORD_LIST = ["movie review","film review","2023 movie","best movies 2023","upcoming films","box office","Oscar nominations","directed by","starring","awards season","film premiere","celebrity interviews","blockbuster movies 2023"]
 KEYWORD = ''
 CACHE_FILE = f'news_cache_{KEYWORD}.json'
-#API_KEY1 = "ee459c38b2e54a7f9020c4db78d4b787"
-API_KEY2 = "71e57d0e92d640e5b6d2a43e8c88f52e"
+API_KEY = "4a23ad6931bc49139167bf9311e874d6"
+API_KEY_LIST = ["4a23ad6931bc49139167bf9311e874d6","71e57d0e92d640e5b6d2a43e8c88f52e","ee459c38b2e54a7f9020c4db78d4b787"]
 def duplicates(contents,total):
     dataframes = [pd.DataFrame.from_records(contents[k])[['title', 'description']] for k in contents]
     emptydf = pd.concat(dataframes, ignore_index=True)
@@ -51,7 +51,7 @@ def is_from_preferred_source(article, preferred_sources):
     return any(preferred_source.lower() in source_name for preferred_source in preferred_sources)
 
 def fetch_latest_news(api_key, news_keywords, lookback_days=1, startdaysago=1, preferred_sources=None):
-    global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY
+    global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY,API_KEY_LIST
     if preferred_sources is None:
         preferred_sources = []
     
@@ -80,6 +80,13 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=1, startdaysago=1, p
             if response.status_code != 200:
                 print(f"Failed to fetch news. Status code: {response.status_code}")
                 continue  # Skip to the next iteration if fetching fails
+            if response.status_code == 429:
+                try:
+                    API_KEY = API_KEY_LIST[API_KEY_LIST.index(API_KEY)+1]
+                except:
+                    API_KEY = API_KEY
+                url = f"https://newsapi.org/v2/everything?q={news_keywords}&from={lookback_date_str}&to={today_str}&language=en&apiKey={api_key}"
+                response = requests.get(url)
 
             data = response.json()
             # Save data to cache
@@ -118,7 +125,7 @@ def filter_articles_by_content(articles):
     return filtered_articles
 
 def main():
-    global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY
+    global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY,API_KEY_LIST
    # keywords = '"November 2023 movie review" OR "2023 movie"'
     #keywords = '"Mavels movie 2023" OR " Marvels review"'
     keywords = (
