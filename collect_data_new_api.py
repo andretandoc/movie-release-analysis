@@ -4,19 +4,33 @@ import json
 from pathlib import Path
 import os
 import re
-import pandas as pd
 
-CACHE_FILE = 'news_cache.json'
-API_KEY = "ee459c38b2e54a7f9020c4db78d4b787"
-#API_KEY = "71e57d0e92d640e5b6d2a43e8c88f52e"
-def duplicates(contents,total):
-    dataframes = [pd.DataFrame.from_records(contents[k])[['title', 'description']] for k in contents]
-    emptydf = pd.concat(dataframes, ignore_index=True)
-    emptydf['category'] = ''
-    emptydf['duplicate']  = emptydf.title.isin(total.title).astype(int)
-    emptydf = emptydf[emptydf['duplicate']==0]
-    total = pd.concat(total,emptydf)
-    return total
+CACHE_FILE = 'news_cache_newapi.json'
+API_KEY = '18f3754286ab20d72cc9ed3eaf303366'
+import http.client, urllib.parse
+
+conn = http.client.HTTPConnection('api.mediastack.com')
+
+params = urllib.parse.urlencode({
+    'access_key': API_KEY,
+    'categories': 'general',
+    'sort': 'popularity',
+    'limit': 10,
+    'sources':'en',
+    'keywords':'films',
+    'date':'2023-06-01,2023-08-26'
+    })
+
+conn.request('GET', '/v1/news?{}'.format(params))
+
+res = conn.getresponse()
+data = res.read()
+df = data.decode('utf-8')
+df = json.loads(df).get("data")
+for x in df:
+    print(x["title"])
+#print(data.decode('utf-8'))
+'''
 def load_cache():
     if os.path.exists(CACHE_FILE):
         # Check if the file is empty
@@ -121,18 +135,14 @@ def main():
     '"directed by" OR "starring" OR "awards season" OR "film premiere" OR '
     '"celebrity interviews" OR "blockbuster movies 2023"'
 )
-    keywordslist = ["movie review","film review"]#,"2023 movie","best movies 2023","upcoming films","box office","Oscar nominations","directed by","starring","awards season","film premiere","celebrity interviews","blockbuster movies 2023"]
     preferred_sources = ["Rotten Tomatoes", "Screen Rant", "Metacritic", "Movie Insider", "IMDb", "New York Times", "LA Times", "Boing Boing", "Wired"]
-    all_articles = pd.DataFrame()
-    for x in keywordslist:
-        totlist = fetch_latest_news(API_KEY, x, lookback_days=1, startdaysago=1, preferred_sources=None)
-        all_articles = duplicates(totlist,all_articles)
+    totlist = fetch_latest_news(API_KEY, keywords, lookback_days=1, startdaysago=1, preferred_sources=None)
 
     #for article in totlist:
         #print(article['url'])
             
     print(f"Total number of articles: {len(totlist)}")
-    return
+
     cache = load_cache()
     filtered_json_data = {}
     for date, articles in cache.items():
@@ -152,3 +162,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''
