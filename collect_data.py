@@ -5,11 +5,12 @@ from pathlib import Path
 import os
 import re
 import pandas as pd
+global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY
 KEYWORD_LIST = ["movie review","film review","2023 movie","best movies 2023","upcoming films","box office","Oscar nominations","directed by","starring","awards season","film premiere","celebrity interviews","blockbuster movies 2023"]
 KEYWORD = ''
 CACHE_FILE = f'news_cache_{KEYWORD}.json'
-API_KEY = "ee459c38b2e54a7f9020c4db78d4b787"
-#API_KEY = "71e57d0e92d640e5b6d2a43e8c88f52e"
+#API_KEY1 = "ee459c38b2e54a7f9020c4db78d4b787"
+API_KEY2 = "71e57d0e92d640e5b6d2a43e8c88f52e"
 def duplicates(contents,total):
     dataframes = [pd.DataFrame.from_records(contents[k])[['title', 'description']] for k in contents]
     emptydf = pd.concat(dataframes, ignore_index=True)
@@ -20,6 +21,7 @@ def duplicates(contents,total):
     return total
 
 def load_cache():
+    global CACHE_FILE
     if os.path.exists(CACHE_FILE):
         # Check if the file is empty
         if os.path.getsize(CACHE_FILE) > 0:
@@ -49,6 +51,7 @@ def is_from_preferred_source(article, preferred_sources):
     return any(preferred_source.lower() in source_name for preferred_source in preferred_sources)
 
 def fetch_latest_news(api_key, news_keywords, lookback_days=1, startdaysago=1, preferred_sources=None):
+    global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY
     if preferred_sources is None:
         preferred_sources = []
     
@@ -58,7 +61,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=1, startdaysago=1, p
 
     # Fetch news for each day over the past month
     totlist = []
-    for i in range(15):
+    for i in range(6):
         lookback_date = today - datetime.timedelta(days=lookback_days)
         today_str = today.strftime("%Y-%m-%d")
         lookback_date_str = lookback_date.strftime("%Y-%m-%d")
@@ -67,7 +70,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=1, startdaysago=1, p
         cache_key = f"{lookback_date_str}_{today_str}"
 
         if cache_key in cache:
-            print(f"Fetching from cache for date range: {lookback_date_str} to {today_str}")
+            #print(f"Fetching from cache for date range: {lookback_date_str} to {today_str}")
             data = cache[cache_key]
             articles = data
         else:
@@ -115,6 +118,7 @@ def filter_articles_by_content(articles):
     return filtered_articles
 
 def main():
+    global KEYWORD,KEYWORD_LIST,CACHE_FILE,API_KEY
    # keywords = '"November 2023 movie review" OR "2023 movie"'
     #keywords = '"Mavels movie 2023" OR " Marvels review"'
     keywords = (
@@ -129,6 +133,7 @@ def main():
     sumpostfilter = 0
     for x in KEYWORD_LIST:
         KEYWORD = x
+        CACHE_FILE = f'news_cache_{KEYWORD}.json'
         totlist = fetch_latest_news(API_KEY, x, lookback_days=1, startdaysago=1, preferred_sources=None)
         cache = load_cache()
         filtered_json_data = {}
