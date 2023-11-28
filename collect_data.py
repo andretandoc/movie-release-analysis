@@ -5,8 +5,9 @@ from pathlib import Path
 import os
 import re
 import pandas as pd
-
-CACHE_FILE = 'news_cache.json'
+KEYWORD_LIST = ["movie review","film review","2023 movie","best movies 2023","upcoming films","box office","Oscar nominations","directed by","starring","awards season","film premiere","celebrity interviews","blockbuster movies 2023"]
+KEYWORD = ''
+CACHE_FILE = f'news_cache_{KEYWORD}.json'
 API_KEY = "ee459c38b2e54a7f9020c4db78d4b787"
 #API_KEY = "71e57d0e92d640e5b6d2a43e8c88f52e"
 def duplicates(contents,total):
@@ -17,6 +18,7 @@ def duplicates(contents,total):
     emptydf = emptydf[emptydf['duplicate']==0]
     total = pd.concat(total,emptydf)
     return total
+
 def load_cache():
     if os.path.exists(CACHE_FILE):
         # Check if the file is empty
@@ -86,7 +88,7 @@ def fetch_latest_news(api_key, news_keywords, lookback_days=1, startdaysago=1, p
         # Filter articles by preferred sources
         filtered_articles = [article for article in articles if is_from_preferred_source(article, preferred_sources)]
         if not filtered_articles:
-            print(f'No articles from preferred sources in the cache for date range: {lookback_date_str} to {today_str}')
+            #print(f'No articles from preferred sources in the cache for date range: {lookback_date_str} to {today_str}')
             totlist.extend(articles)
         else:
             totlist.extend(filtered_articles)
@@ -121,34 +123,33 @@ def main():
     '"directed by" OR "starring" OR "awards season" OR "film premiere" OR '
     '"celebrity interviews" OR "blockbuster movies 2023"'
 )
-    keywordslist = ["movie review","film review"]#,"2023 movie","best movies 2023","upcoming films","box office","Oscar nominations","directed by","starring","awards season","film premiere","celebrity interviews","blockbuster movies 2023"]
     preferred_sources = ["Rotten Tomatoes", "Screen Rant", "Metacritic", "Movie Insider", "IMDb", "New York Times", "LA Times", "Boing Boing", "Wired"]
-    all_articles = pd.DataFrame()
-    for x in keywordslist:
+    all_articles = []
+    sumprefilter = 0
+    sumpostfilter = 0
+    for x in KEYWORD_LIST:
+        KEYWORD = x
         totlist = fetch_latest_news(API_KEY, x, lookback_days=1, startdaysago=1, preferred_sources=None)
-        all_articles = duplicates(totlist,all_articles)
-
-    #for article in totlist:
-        #print(article['url'])
+        cache = load_cache()
+        filtered_json_data = {}
+        sumprefilter+=len(totlist)
+        print(f"Total number of articles for {KEYWORD}: {len(totlist)}")
+        for date, articles in cache.items():
+            filtered_articles = filter_articles_by_content(articles)
+            filtered_json_data[date] = filtered_articles
+        filtered_json = {'articles': filtered_json_data}
+        # Save filtered articles to a new JSON file
+        with open(f'filtered_news_{KEYWORD}.json', 'w', encoding='utf-8') as json_file:
+            json.dump(filtered_json, json_file, ensure_ascii=False, indent=4)
+        
+        print(f"Filtered articles saved to 'filtered_news.json'.")
+        article_count = sum(len(articles) for articles in filtered_json_data.values())
+        sumpostfilter += article_count
+        print(f"Number of articles in the new JSON: {article_count}")
             
-    print(f"Total number of articles: {len(totlist)}")
-    return
-    cache = load_cache()
-    filtered_json_data = {}
-    for date, articles in cache.items():
-        filtered_articles = filter_articles_by_content(articles)
-        filtered_json_data[date] = filtered_articles
-
-    # Save filtered articles to a new JSON file
-    filtered_json = {'articles': filtered_json_data}
-    with open('filtered_news.json', 'w', encoding='utf-8') as json_file:
-        json.dump(filtered_json, json_file, ensure_ascii=False, indent=4)
-
-    print(f"Filtered articles saved to 'filtered_news.json'.")
-
+    print(f"Total number of articles: {sumprefilter}")
     # Print the count of articles in the new JSON
-    article_count = sum(len(articles) for articles in filtered_json_data.values())
-    print(f"Number of articles in the new JSON: {article_count}")
+    print(f"Number of articles in the new JSON: {sumpostfilter}")
 
 if __name__ == "__main__":
     main()
