@@ -13,7 +13,9 @@ for keyword in KEYWORD_LIST:
     with open(json_file_path, 'r', encoding='utf-8') as j:
         contents = json.load(j)
     contents = contents['articles']
+   
     # Use list comprehension and pd.concat directly
+    #dataframes = [pd.DataFrame.from_records(contents[k])[['title', 'description']] if 'title' in contents[k] and 'description' in contents[k] else pd.DataFrame() for k in contents]
     dataframes = [pd.DataFrame.from_records(contents[k])[['title', 'description']] for k in contents]
     emptydf = pd.concat(dataframes, ignore_index=True)
     emptydf['category'] = ''
