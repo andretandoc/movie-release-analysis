@@ -1,74 +1,80 @@
 {
   "List": [
-    "watch",
-    "week",
-    "november",
-    "december",
     "include",
     "jones",
     "indiana",
-    "netflix",
-    "tv",
-    "releases"
+    "december",
+    "special",
+    "plenty",
+    "november",
+    "exciting",
+    "iconic",
+    "added"
   ],
   "Ratings": [
     "weekend",
-    "games",
-    "hunger",
-    "box",
-    "office",
     "ballad",
     "songbirds",
-    "million",
+    "games",
+    "hunger",
     "day",
-    "top"
+    "top",
+    "office",
+    "prequel",
+    "marvels"
   ],
   "Announcements and Updates": [
     "release",
-    "trailer",
-    "franchise",
-    "december",
     "installment",
     "announced",
-    "theaters",
-    "upcoming",
     "taylor",
-    "coming"
+    "date",
+    "trailer",
+    "universal",
+    "swift",
+    "december",
+    "scream"
   ],
   "Ad": [
     "black",
     "friday",
+    "wondering",
+    "deal",
     "streaming",
-    "directed",
-    "film",
-    "movies",
-    "movie"
+    "miss",
+    "peacock",
+    "crime",
+    "follows",
+    "buy"
   ],
   "Review": [
     "review",
-    "original",
-    "post",
     "character",
-    "wish",
-    "star",
-    "thriller",
-    "horror",
-    "set",
-    "series"
+    "universe",
+    "godzilla",
+    "director",
+    "hollywood",
+    "documentary",
+    "american",
+    "read",
+    "channel"
   ],
   "Interview": [
     "barbie",
     "taika",
     "waititi",
-    "star",
-    "filmmaker",
     "wars",
     "director",
-    "interview",
-    "role",
-    "thor"
+    "thor",
+    "jim",
+    "revealed",
+    "co",
+    "christopher"
   ],
   "Rumors and Speculation": [
+    "fantastic",
+    "upcoming",
+    "marvel",
     "movie"
   ]
 }

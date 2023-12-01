@@ -6,7 +6,7 @@ import json
 STOP_WORDS_FILE = 'stop_words.txt'
 TOPICS_LABEL_FILE = 'topics_label.csv'
 OUTPUT_FILE = 'word_count.json'
-MIN_WORD_FREQUENCY = 5
+MIN_WORD_FREQUENCY = 2
 
 def read_stop_words(stop_words_file):
     stop_words = []
