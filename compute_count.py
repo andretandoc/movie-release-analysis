@@ -1,83 +1,63 @@
 import argparse
 import pandas as pd
-import re 
+import re
 import json
 
-def read_stop_words():
-    #read from stopwords.txt
+STOP_WORDS_FILE = 'stop_words.txt'
+TOPICS_LABEL_FILE = 'topics_label.csv'
+OUTPUT_FILE = 'word_count.json'
+MIN_WORD_FREQUENCY = 5
+
+def read_stop_words(stop_words_file):
     stop_words = []
-    with open('stop_words.txt', 'r') as f:
+    with open(stop_words_file, 'r') as f:
         for line in f:
             stop_words.append(line.strip())
     return stop_words
 
-def clean_dialog(dialog):
-    dialog = dialog.lower()
-    dialog = re.sub(r'[()\[\],\-.?!:;#&]', ' ', dialog)
-    dialog = [re.sub(r',$', '', item) for item in dialog.split()]
-    dialog = [re.sub(r'[.,]{2,}', ' ', item) for item in dialog]
-    
-    return dialog
+def clean_description(description):
+    description = description.lower()
+    description = re.sub(r'[()\[\],\-.?!:;#&]', ' ', description)
+    description = [re.sub(r',$', '', item) for item in description.split()]
+    description = [re.sub(r'[.,]{2,}', ' ', item) for item in description]
+    return description
 
-def compute_word_counts():
-    
-    topics_labelling = 'topics_label.csv'
-    # Read stop words
-    stop_words = read_stop_words()
-    # Categories
-    categories = [
-    "List",
-    "Ratings",
-    "Announcements and Updates",
-    "Ad",
-    "Review",
-    "Interview",
-    "Rumors and Speculation"
-]
-
-    df = pd.read_csv(topics_labelling)
-    # Filter rows by categories
+def filter_and_preprocess(df, categories, stop_words):
     df_filtered = df[df['Topic'].isin(categories)]
-    df_filtered['Description'] = df_filtered['Description'].apply(clean_dialog)
-    # Remove stop words
+    df_filtered['Description'] = df_filtered['Description'].apply(clean_description)
     df_filtered['Description'] = df_filtered['Description'].apply(lambda x: [item for item in x if item not in stop_words])
-    #make sure only alphabetic words are kept
     df_filtered['Description'] = df_filtered['Description'].apply(lambda x: [item for item in x if item.isalpha()])
-    # Compute word counts
+    return df_filtered
+
+def compute_word_counts(df_filtered, categories, min_word_frequency):
     word_counts = {}
     for topic in categories:
         word_counts[topic] = {}
-        
-        topic_dialog = df_filtered[df_filtered['Topic'] == topic]['Description']
-        
-        for dialog in topic_dialog:
-            for word in dialog:
-                if word not in word_counts[topic]:
-                    word_counts[topic][word] = 1
-                else:
-                    word_counts[topic][word] += 1
-   
-    #keep only words that appear more than 5 times
-    for topic in categories: 
-       
-       word_counts[topic] = {k:v for k,v in word_counts[topic].items() if v > 5}
+        topic_description = df_filtered[df_filtered['Topic'] == topic]['Description']
+        for description in topic_description:
+            for word in description:
+                word_counts[topic][word] = word_counts[topic].get(word, 0) + 1
+
+    # Keep only words that appear more than MIN_WORD_FREQUENCY times
+    for topic in categories:
+        word_counts[topic] = {k: v for k, v in word_counts[topic].items() if v > min_word_frequency}
+
     # Write word counts to json file
-    with open('word_count.json', 'w') as f:
+    with open(OUTPUT_FILE, 'w') as f:
         json.dump(word_counts, f, indent=4)
-    
+
     return word_counts
-
-
 
 def main():
     parser = argparse.ArgumentParser(description='Compute word counts for each topic from all episodes of MLP.')
-    #parser.add_argument('-o', dest='word_count', required=True, help='The name of the json file to output to')
-   # parser.add_argument('-d', dest='clean_dialog', required=True,help='The name of the csv file to extract words from')
-
     args = parser.parse_args()
-    #compute_word_counts()
-    compute_word_counts()
 
+    stop_words = read_stop_words(STOP_WORDS_FILE)
+    df = pd.read_csv(TOPICS_LABEL_FILE)
+    categories = ["List", "Ratings", "Announcements and Updates", "Ad", "Review", "Interview", "Rumors and Speculation"]
+
+    df_filtered = filter_and_preprocess(df, categories, stop_words)
+    compute_word_counts(df_filtered, categories, MIN_WORD_FREQUENCY)
 
 if __name__ == "__main__":
     main()

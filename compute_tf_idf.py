@@ -39,7 +39,7 @@ def compute_topic_lang(topics_count,num_words):
                 top_n[topic].append(word[0])
             json_stdout = json.dumps(top_n, indent=2)
         
-    print(json_stdout)
+    
     with open('distinctive_topic_words.json', 'w') as f:
         json.dump(top_n, f, indent=2)
 
